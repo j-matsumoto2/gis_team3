@@ -108,7 +108,7 @@ function changeSelect(flag) {
             select1.options[select1.selectedIndex].value == "その他"
       }
     }
-    //通常時
+    //その後読み込み
     else if (select1.options[select1.selectedIndex].value == "舗装") {
         select2.options[0] = new Option("道路に穴が空いています");
         select2.options[1] = new Option("道路が爆発しています");
