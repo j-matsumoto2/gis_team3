@@ -173,7 +173,7 @@ function inputLocation(latitude,longitude) {
     */
 }
 
-//できない
+//できない.
 function inputLocation2(latitude,longitude) {
 
     marker.addEventListener('change', function (e) {
