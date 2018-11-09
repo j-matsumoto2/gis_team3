@@ -116,7 +116,7 @@ function deleteCookie2() {
 //なのでとりあえずcahangeselectに引数でどれのselect1を選んだか渡した
 //
 function Select2Decision(select1) {
-    //select用
+    //select用で
     var select2;
     if(select1==1){
         select2=="舗装";
