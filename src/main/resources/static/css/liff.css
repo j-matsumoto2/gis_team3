@@ -1,0 +1,148 @@
+@charset "utf-8";
+
+/*font-sizeを16px以上にしたらiOSでは入力時に拡大されない。Androidは知らん*/
+
+.title { /*報告状況入力*/
+    font-family: Impact;
+    font-size: 30px;
+    color: #364e96; /*文字色*/
+    padding: 0.5em 0; /*上下の余白*/
+    border-top: solid 3px #364e96; /*上線*/
+    border-bottom: solid 3px #364e96; /*下線*/
+}
+
+.font { /*報告種別・内容*/
+    font-size: 25px;
+    font-family: YuGothic;
+}
+
+.required { /*必須*/
+    padding: 0.2rem;
+    font-size: 25px;
+    color: red;
+    border: solid 1px red;
+    border-radius: 0.5rem;
+
+}
+
+.any { /*任意*/
+    padding: 0.2rem;
+    font-size: 1.5rem;
+    color: gray;
+    border: solid 1px black;
+    border-radius: 0.5rem;
+
+}
+
+.box {
+    height: 50px;
+    width: 360px;
+    font-size: 16px;
+}
+
+.textarea {
+    border: 2px solid gray; /*枠線の太さと線の色*/
+    padding: 0.2rem; /*よくわからん*/
+    width: 98%;
+    height: 6em;
+    font-size: 16px; /*入力するfontsize*/
+    color: black; /*入力するfontcolor*/
+}
+
+.square_btn {
+    /*position: relative;*/
+    /*padding: 10px;*/
+    margin-top: 2em;
+    display: inline-block;
+    background: crimson; /*色*/
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+    width: 130px;
+    height: 44px;
+    /*--font--*/
+    color: #FFF;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.square_btn:active { /*押したとき*/
+    margin-left: auto;
+    margin-right: auto;
+    border: solid 1px #03A9F4;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+div {
+    text-align: center;
+}
+
+label > input {
+    display: none;
+}
+
+.photo {
+    background-image: url("images/camera_white.png");
+    background-color: forestgreen;
+    border: 2px solid forestgreen;
+    width: 80px;
+    height: 80px;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+.button_font {
+    font-size: 20px;
+    font-family: YuGothic;
+}
+
+.map_p {
+    text-align: center;
+}
+
+/*------*/
+.accbox {
+    margin: 2em 0;
+    padding: 0;
+    max-width: 400px;/*最大幅*/
+}
+
+/*ラベル*/
+.accbox label {
+    display: block;
+    margin: 1.5px 0;
+    padding : 11px 12px;
+    color : white; /**/
+    font-weight: bold;
+    background :#85baef;
+    cursor :pointer;
+    transition: all 0.5s;
+}
+
+/*ラベルホバー時*/
+.accbox label:hover {
+    background :#85baef;
+}
+
+/*チェックは隠す*/
+.accbox input {
+    display: none;
+}
+
+/*中身を非表示にしておく*/
+.accbox .accshow {
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: 0.8s;
+}
+
+/*クリックで中身表示*/
+.cssacc:checked + .accshow {
+    height: auto;
+    padding: 5px;
+    background: #eaeaea;
+    opacity: 1;
+}

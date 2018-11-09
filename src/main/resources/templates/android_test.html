@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!--thymeleafを使うためのやつ-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Geolocation_test_page</title>
+</head>
+<body onload="onPageLoad2()">
+    <p>↓mapの表示↓</p>
+    <div id="mapid"></div>
+    <input type="button" id="currentLocation" value="現在の位置情報を取得する" onclick="setCurLocation2()">
+
+    <!-- 地図表示 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw==" crossorigin=""></script>
+    <script src="/js/android_test.js" th:src="@{/js/android_test.js}"></script>
+</body>
+</html>
