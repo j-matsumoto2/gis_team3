@@ -52,6 +52,14 @@ function drawMap() {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, '
     }).addTo(mymap);
 
+    // Control OSM Geocoder
+    var option = {
+        position: 'topright', // topright, topleft, bottomright, bottomleft
+        text: '検索',
+        placeholder: '検索条件を入力してください。'
+    }
+    var osmGeocoder = new L.Control.OSMGeocoder(option);
+    mymap.addControl(osmGeocoder);
 
     function onLocationFound(e) {
         //現段階（10月ではまだ住所変換できてないので緯度・経度のまま）
@@ -70,11 +78,14 @@ function drawMap() {
     }
 
     function onMapClick(e) {
-        //マップをクリックしたときのイベント
+        // マップをクリックしたときのイベント
         // https://kita-note.com/leaflet-tutorial-4
         //すでにあるMarkerを削除して、新しいMarkerを設置
         mymap.removeLayer(marker);
-        marker = L.marker(e.latlng).addTo(mymap).bindPopup(e.latlng.toString()).openPopup();
+
+        //↓pop消しとく
+
+        marker = L.marker(e.latlng).addTo(mymap);
         //↑の下に以下の二行書けば取得できる　　inputはさむとできない　原因はわからん
         newLat = e.latlng.lat; //緯度取得
         newLon = e.latlng.lng; //経度取得
@@ -238,12 +249,14 @@ function initApp(data) {
     });
 
     document.getElementById("sendmessagebutton").addEventListener('click', function (ev) {
+        //null送られないようにする
         type = document.report.type.value;
         category = document.report.category.value;
         detail = document.report.detail.value;
         latitude = newLat;
         longitude = newLon;
-       sendMessage();
+            sendMessage();
+
     });
 
 }

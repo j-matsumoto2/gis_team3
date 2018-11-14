@@ -20,7 +20,7 @@ L.Control.OSMGeocoder = L.Control.extend({
 				first = new L.LatLng(bbox[0], bbox[2]),
 				second = new L.LatLng(bbox[1], bbox[3]),
 				bounds = new L.LatLngBounds([first, second]);
-			this._map.fitBounds(bounds);
+			this.mymap.fitBounds(bounds);
 		}
 	},
 
@@ -31,7 +31,7 @@ L.Control.OSMGeocoder = L.Control.extend({
 	},
 
 	onAdd: function (map) {
-		this._map = map;
+		this.mymap = map;
 
 		var className = 'leaflet-control-geocoder',
 			container = this._container = L.DomUtil.create('div', className);
@@ -63,7 +63,7 @@ L.Control.OSMGeocoder = L.Control.extend({
 
 			L.DomEvent.addListener(link, L.Browser.touch ? 'click' : 'focus', this._expand, this);
 
-			this._map.on('movestart', this._collapse, this);
+			this.mymap.on('movestart', this._collapse, this);
 		} else {
 			this._expand();
 		}
