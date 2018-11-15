@@ -1,13 +1,18 @@
-package com.example.linebot.line;
+package com.example.linebot.line.sub;
 
 import com.example.linebot.Report;
+import com.example.linebot.line.Substring;
+//import com.example.linebot.web.sub.Report;
+import com.example.linebot.line.sub.Callback;
 import com.example.linebot.web.LIFFController;
 import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.client.MessageContentResponse;
 import com.linecorp.bot.model.action.Action;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.PostbackEvent;
+import com.linecorp.bot.model.event.message.ImageMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.postback.PostbackContent;
 import com.linecorp.bot.model.message.Message;
@@ -15,13 +20,26 @@ import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.template.ConfirmTemplate;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
-import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
-@LineMessageHandler
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+/*
+ * Version2
+ * LIFFを自分で起動 -> 画像の投稿は別個
+ *
+ * */
+
+//@LineMessageHandler
 public class CallbackV2 {
 
     Report report  = new Report();
@@ -32,6 +50,9 @@ public class CallbackV2 {
 
     @Autowired
     private LineMessagingClient lineMessagingClient;
+
+    // 画像用
+    private static final Logger log = LoggerFactory.getLogger(Callback.class);
 
     // 返答メッセージを作る
     private TextMessage reply(String text) {
@@ -129,5 +150,47 @@ public class CallbackV2 {
             return reply("どうすることもできんゾ : data -> " + data);
 
         }
+    }
+
+    // 画像メッセージに対応するイベント
+    @EventMapping
+    public Message handleImageMessageEvent(MessageEvent<ImageMessageContent> event) {
+
+        ImageMessageContent imc = event.getMessage();
+        String messageId = imc.getId();
+        Optional<String> opt = Optional.empty();
+
+        try {
+            //画像メッセージのmessageIdでMessageContentResponseを取得
+            MessageContentResponse response = lineMessagingClient.getMessageContent(messageId).get();
+            log.info("get content{}:", response);
+            // MessageContentResponse からファイルをローカルに保存する
+            // ※LINEでは、どの解像度で写真を送っても、サーバ側でjpgファイルに変換される
+            opt = makeTmpFile(response, ".jpg");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // ファイルが保存できたことが確認できるように、ローカルのファイルパスをコールバックする
+        // 運用ではファイルパスを表示することは避けましょう
+        String path = opt.orElseGet(() -> "ファイル書き込みNG");
+
+        return reply("画像を受信し、次のパスで保存しました\nPath -> " + path);
+    }
+
+    // MessageContentResponse野中のバイト入力ストリームを、拡張子を指定してファイルに書き込む
+    // また保存先のファイルパスをOptional型で返す
+    private Optional<String> makeTmpFile(MessageContentResponse resp, String extention) {
+
+        try(InputStream is = resp.getStream()){
+            Path tmpFilePath = Files.createTempFile("linebot", extention);
+            Files.copy(is, tmpFilePath,REPLACE_EXISTING);
+            return Optional.ofNullable(tmpFilePath.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
     }
 }

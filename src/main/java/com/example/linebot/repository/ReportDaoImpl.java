@@ -11,7 +11,7 @@ import java.sql.*;
 @Transactional
 public class ReportDaoImpl implements ReportDao {
 
-    public static final String URL ="jdbc:postgresql://localhost:5432/";
+    public static final String URL ="jdbc:postgresql://localhost";
     public static final String USER_ID = "";
     public static final String PASSWD = "";
 

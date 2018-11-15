@@ -13,6 +13,7 @@ function load_cookie() {
     var c_data,n,m,data;
     //cookieの読込
     c_data = loadCookie(c_name);
+
     if (c_data != "") {
         //データがある場合
         data = c_data.split(c_split);
@@ -20,17 +21,14 @@ function load_cookie() {
         document.report.detail.value = data[0];
         //セレクトメニュー
         document.report.type[data[1]].selected = true;
-        Select2Decision(data[1]);
+        Select2Decision(data[1]);   // 追加
         document.report.category[data[2]].selected=true;
-
-        alert("wwwww");
+        //alert("wwwww");
         //チェックボックス
         //document.form1.checkBox.checked = data[2];
         //ラジオボタン
         //document.form1.radioButton[data[3]].checked = true;
     }
-    else {
-        }
 }
 
 //cookieの保存
@@ -90,7 +88,7 @@ function saveCookie(c_name,c_data,c_day) {
 
 // 削除するときに呼ばれるメソッド
 function deleteCookie() {
-    alert("delete");
+    //alert("delete");
     document.cookie = "sample_cookie=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 }
 
@@ -111,6 +109,7 @@ function deleteCookie2() {
     data[1] = "";
     data[2] = "";
 }
+
 //Cookieのselect2はselect1の選択肢に関わらず「選んだ番号」を選択している
 //のでchangeselectでも舗装除雪にかかわらず選択されてしまう　例　除雪　道路が爆発してしまう
 //なのでとりあえずcahangeselectに引数でどれのselect1を選んだか渡した
