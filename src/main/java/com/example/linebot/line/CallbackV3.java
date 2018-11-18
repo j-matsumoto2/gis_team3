@@ -65,6 +65,9 @@ public class CallbackV3 {
     // 画像の保存に使う
     private static String messageId;
 
+    //ボタンテンプレのボタンを二回押さないようにするflag
+    private int flag2;
+
     // 確認フォームテンプレ(非対応メッセージ用)
     public ConfirmTemplate confirmTemplateM1(String text) {
         Action left = new URIAction("はい", "line://app/1619229116-6eGmdl7z");
@@ -75,7 +78,15 @@ public class CallbackV3 {
     // 確認フォームテンプレ(LIFF対応用)
     public ConfirmTemplate confirmTemplateLIFF(String text) {
         //Action left = new PostbackAction("はい","LY");
-        Action left = new URIAction("はい", "line://app/1619229116-6eGmdl7z");
+        Action left;
+        //報告後、はいも押せないようにするなら
+        if(flag2==1) {
+            System.out.println("qwqwqw");
+             left = new URIAction("はい", "line://app/1619229116-6eGmdl7z");
+        }else{
+            //報告後、何もしない
+            left = new PostbackAction("はい","NN");
+        }
         Action right = new PostbackAction("いいえ","LN");
         return new ConfirmTemplate(text,left,right);
     }
@@ -85,6 +96,10 @@ public class CallbackV3 {
         //Action left = new PostbackAction("はい","IY");
         Action left = new PostbackAction("はい", "IY");
         Action right = new PostbackAction("いいえ","IN");
+
+        //flag2=1にする　流石に画像送ってボタンメッセージに戻って　はいいいえ押すやつおりゅ？
+        flag2=1;
+
         return new ConfirmTemplate(text,left,right);
     }
 
@@ -145,7 +160,8 @@ public class CallbackV3 {
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
-
+            //このメッセージが送られたとき、flag2を1にする
+            flag2=1;
             return new TemplateMessage("内容を修正しますか", confirmTemplateLIFF(text+"\n内容を修正しますか？"));
 
         } else {
@@ -166,6 +182,7 @@ public class CallbackV3 {
         String data = pbc.getData();
         // UserId
         String userId = event.getSource().getUserId();
+        System.out.println(flag2);
 
         // 確認フォームのボタンに対するアクション
         if("MN".equals(data)) {
@@ -175,22 +192,39 @@ public class CallbackV3 {
             // 送信完了時にLIFFのCookieを削除する?
             // 消す=="true"  消さない=="false"
             // すでにtrueだったらfalseに変更？もしくはCache削除
-            controller.putCache(userId, "true");
-            // DBにぶちこみ
-            try {
-                reportDao.insert(report.getType(), report.getCategory(), report.getDetail(), report.getLatitude(), report.getLongitude());
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if(flag2==1) {
+                controller.putCache(userId, "true");
+                // DBにぶちこみ
+                try {
+                    reportDao.insert(report.getType(), report.getCategory(), report.getDetail(), report.getLatitude(), report.getLongitude());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                //flag2を0にする　以降、報告内容のボタンテンプレメッセージが送られない限り何もしない
+                flag2=0;
+                return reply("報告を送信しました。（仮）\nありがとうございます。");
+            }else{
+                //何もしない 警告出るけど問題ない(はず)
+                return reply("");
             }
-            return reply("報告を送信しました。（仮）\nありがとうございます。");
         } else if("IY".equals(data)) {
-            // 画像を保存してLIFF起動
-            getImageContent();
-            // 入力フォームのテンプレを返す
-            return goLiff();
+            //flag2==１の時(ボタンテンプレメッセージが送られたとき)および画像が送られたときのみ通るはずなのにできない　
+            //いいえの時はできた
+            if(flag2==1) {
+                // 画像を保存してLIFF起動
+                System.out.println("qqqq");
+                getImageContent();
+                // 入力フォームのテンプレを返す
+                return goLiff();
+            }else{
+                return reply("");
+            }
         } else if("IN".equals(data)) {
             // 画像を保存せずになんかメッセージ
             return reply("画像を送信するか、下の「報告フォーム」から報告できます。");
+        }else if("NN".equals(data)) {
+            //なにもしない
+            return reply("");
         } else {
             return reply("どうすることもできんゾ : data -> " + data);
         }

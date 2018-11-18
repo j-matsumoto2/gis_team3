@@ -104,6 +104,16 @@ function changeSelect(flag) {
     if(select1.options[select1.selectedIndex].value == ""){
         if(flag=="舗装"){
             select1.options[select1.selectedIndex].value=="舗装"
+        }else if(flag=="照明等"){
+            select1.options[select1.selectedIndex].value=="照明等"
+        }else if(flag=="道路付属物"){
+            select1.options[select1.selectedIndex].value=="道路付属物"
+        }else if(flag=="雨水・排水"){
+            select1.options[select1.selectedIndex].value=="雨水・排水"
+        }else if(flag=="小動物の死骸"){
+            select1.options[select1.selectedIndex].value=="小動物の市街"
+        }else if(flag=="樹木・雑草"){
+            select1.options[select1.selectedIndex].value=="樹木・雑草"
         }else if(flag=="除雪") {
             select1.options[select1.selectedIndex].value == "除雪"
         }else if(flag=="その他") {
@@ -127,6 +137,16 @@ function changeSelect(flag) {
     else if (select1.options[select1.selectedIndex].value == "その他") {
         select2.options[0] = new Option("お腹痛い");
         select2.options[1] = new Option("眠い");
+    }else if(select1.options[select1.selectedIndex].value=="照明等"){
+        select2.options[0] = new Option("不明");
+    }else if(select1.options[select1.selectedIndex].value=="道路付属物"){
+        select2.options[0] = new Option("不明！");
+    }else if(select1.options[select1.selectedIndex].value=="雨水・排水"){
+        select2.options[0] = new Option("不明？");
+    }else if(select1.options[select1.selectedIndex].value=="小動物の死骸"){
+        select2.options[0] = new Option("不明！？");
+    }else if(select1.options[select1.selectedIndex].value=="樹木・雑草"){
+        select2.options[0] = new Option("不明？？");
     }
 }
 
