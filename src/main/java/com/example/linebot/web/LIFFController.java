@@ -48,10 +48,10 @@ public class LIFFController {
 //        System.out.println("flag -> " + flag);
     }
 
-    /*testページに遷移*/
-    @RequestMapping(value = "result", params = "testlink", method = RequestMethod.POST)
-    public String testpage() {
-        return "android_test";
-    }
+//    /*testページに遷移*/
+//    @RequestMapping(value = "result", params = "testlink", method = RequestMethod.POST)
+//    public String testpage() {
+//        return "android_test";
+//    }
 
 }

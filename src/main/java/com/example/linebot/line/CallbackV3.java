@@ -1,7 +1,8 @@
 package com.example.linebot.line;
 
 import com.example.linebot.Report;
-//import com.example.linebot.web.sub.Report;
+import com.example.linebot.dao.ReportDao;
+//import com.example.linebot.web.Report;
 import com.example.linebot.line.sub.Callback;
 import com.example.linebot.web.LIFFController;
 import com.linecorp.bot.client.LineMessagingClient;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +43,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class CallbackV3 {
 
     Report report  = new Report();
+
+    @Autowired
+    ReportDao reportDao;
 
     // Spring cache用
     @Autowired
@@ -89,7 +94,7 @@ public class CallbackV3 {
         String thumbnailImageUrlCavet = "https://puu.sh/BbfNS/c2fa6e5411.jpg";
         String thumbnailImageUrlSiokawa = "https://puu.sh/C1nXK/5a48f5c50b.jpg";
         //種別の選択肢
-        Action a = new URIAction("ENTER", " line://app/1619229116-6eGmdl7z");
+        Action a = new URIAction("ENTER", "line://app/1619229116-6eGmdl7z");
         //種別のリスト
         List<Action> actions = Arrays.asList(a);
         //ユーザーに選択させるときのボタンテンプレ
@@ -111,8 +116,16 @@ public class CallbackV3 {
         if (text.startsWith("種別：")) {
 
             Substring substring = new Substring();
-            ArrayList<String> arrayList = substring.getString(text);
+            ArrayList<String> arrayList;
 
+            try {
+                // 受け取った文字列の分割
+                arrayList = substring.getString(text);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return reply("さてはオメー、タダ者じゃねえな？");
+            }
+
+            // 開発用：ArrayListの中身表示
             for (String s : arrayList) {
                 System.out.println(s);
             }
@@ -120,12 +133,14 @@ public class CallbackV3 {
             try {
                 // 緯度経度を分割
                 ArrayList<String> latlng = substring.getLatLng(arrayList.get(3));
-                // ほかクラスに保存
+                // Report(DBに保存する値の格納クラス)に値を渡す
                 report.setType(arrayList.get(0));
                 report.setCategory(arrayList.get(1));
                 report.setDetail(arrayList.get(2));
                 report.setLatitude(latlng.get(0));
                 report.setLongitude(latlng.get(1));
+                // LINEidを取得
+                report.setLineId(event.getSource().getUserId());
 
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
@@ -162,7 +177,11 @@ public class CallbackV3 {
             // すでにtrueだったらfalseに変更？もしくはCache削除
             controller.putCache(userId, "true");
             // DBにぶちこみ
-
+            try {
+                reportDao.insert(report.getType(), report.getCategory(), report.getDetail(), report.getLatitude(), report.getLongitude());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             return reply("報告を送信しました。（仮）\nありがとうございます。");
         } else if("IY".equals(data)) {
             // 画像を保存してLIFF起動
