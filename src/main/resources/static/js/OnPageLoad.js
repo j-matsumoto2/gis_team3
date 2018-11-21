@@ -104,7 +104,7 @@ function changeSelect(flag) {
     if(select1.options[select1.selectedIndex].value == ""){
         if(flag=="舗装"){
             select1.options[select1.selectedIndex].value=="舗装"
-        }else if(flag=="照明等"){
+        }else if(flag=="照明灯"){
             select1.options[select1.selectedIndex].value=="照明等"
         }else if(flag=="道路付属物"){
             select1.options[select1.selectedIndex].value=="道路付属物"
@@ -123,30 +123,54 @@ function changeSelect(flag) {
     //その後読み込み
     else if (select1.options[select1.selectedIndex].value == "舗装") {
         select2.options[0] = new Option("道路に穴が空いています");
-        select2.options[1] = new Option("道路が爆発しています");
+        select2.options[1] = new Option("道路がへこんでいて振動します");
+        select2.options[2] = new Option("段差があり走りづらいです");
+        select2.options[3] = new Option("歩道がでこぼこしていて歩きづらいです");
+        select2.options[4] = new Option("その他");
+    }
+    else if (select1.options[select1.selectedIndex].value == "除雪") {
+        select2.options[0] = new Option("雪山があって見通しが悪い");
+        select2.options[1] = new Option("道路が凸凹で走りづらい");
+        select2.options[2] = new Option("歩道が歩きづらい");
+        select2.options[3] = new Option("砂箱に砂を補充してほしい");
+        select2.options[4] = new Option("その他");
+    }
+    else if(select1.options[select1.selectedIndex].value=="照明灯"){
+        select2.options[0] = new Option("照明灯が消えています");
+        select2.options[1] = new Option("照明灯に穴が開いています");
+        select2.options[2] = new Option("照明灯が錆ついています");
+        select2.options[3] = new Option("照明灯が傾いています");
+        select2.options[4] = new Option("その他");
+    }
+    else if(select1.options[select1.selectedIndex].value=="道路付属物"){
+        select2.options[0] = new Option("ガードパイプが曲がっています");
+        select2.options[1] = new Option("標識が曲がっています");
+        select2.options[2] = new Option("標識が傾いています");
+        select2.options[3] = new Option("標識が見えづらくなっています");
+        select2.options[4] = new Option("縁石が壊れています");
+        select2.options[5] = new Option("その他");
+    }
+    else if(select1.options[select1.selectedIndex].value=="雨水・排水"){
+        select2.options[0] = new Option("雨水が排水されません");
+        select2.options[1] = new Option("雨水枡の周りが壊れています");
+        select2.options[2] = new Option("いつも水が溜まっています");
+        select2.options[3] = new Option("マンホールの周りが壊れています");
+        select2.options[4] = new Option("その他");
+    }
+    else if(select1.options[select1.selectedIndex].value=="小動物の死骸"){
+        select2.options[0] = new Option("動物が車に轢かれています");
+        select2.options[1] = new Option("鳥が死んでいます");
         select2.options[2] = new Option("その他");
     }
-
-    else if (select1.options[select1.selectedIndex].value == "除雪") {
-        select2.options[0] = new Option("雪の山で見通しが悪いんだよね");
-        select2.options[1] = new Option("歩道がもはや存在しない");
-        select2.options[2] = new Option("除雪して（切実）");
-        select2.options[3] = new Option("その他");
+    else if(select1.options[select1.selectedIndex].value=="樹木・雑草"){
+        select2.options[0] = new Option("雑草が伸びているので確認してください");
+        select2.options[1] = new Option("街路樹の枝が伸びているので確認してください");
+        select2.options[2] = new Option("樹木が伸びて交差点が見えづらくなっています");
+        select2.options[3] = new Option("樹木が枯れています");
+        select2.options[4] = new Option("その他");
     }
-
     else if (select1.options[select1.selectedIndex].value == "その他") {
-        select2.options[0] = new Option("お腹痛い");
-        select2.options[1] = new Option("眠い");
-    }else if(select1.options[select1.selectedIndex].value=="照明等"){
-        select2.options[0] = new Option("不明");
-    }else if(select1.options[select1.selectedIndex].value=="道路付属物"){
-        select2.options[0] = new Option("不明！");
-    }else if(select1.options[select1.selectedIndex].value=="雨水・排水"){
-        select2.options[0] = new Option("不明？");
-    }else if(select1.options[select1.selectedIndex].value=="小動物の死骸"){
-        select2.options[0] = new Option("不明！？");
-    }else if(select1.options[select1.selectedIndex].value=="樹木・雑草"){
-        select2.options[0] = new Option("不明？？");
+        select2.options[0] = new Option("その他");
     }
 }
 

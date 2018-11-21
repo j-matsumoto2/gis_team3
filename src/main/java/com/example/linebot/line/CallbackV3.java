@@ -205,7 +205,7 @@ public class CallbackV3 {
                 return reply("報告を送信しました。（仮）\nありがとうございます。");
             }else{
                 //何もしない 警告出るけど問題ない(はず)
-                return reply("");
+                return reply("既に送信されています");
             }
         } else if("IY".equals(data)) {
             //flag2==１の時(ボタンテンプレメッセージが送られたとき)および画像が送られたときのみ通るはずなのにできない　
@@ -217,7 +217,7 @@ public class CallbackV3 {
                 // 入力フォームのテンプレを返す
                 return goLiff();
             }else{
-                return reply("");
+                return reply("既に送信されています");
             }
         } else if("IN".equals(data)) {
             // 画像を保存せずになんかメッセージ
