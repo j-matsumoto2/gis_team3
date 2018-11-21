@@ -105,7 +105,7 @@ function changeSelect(flag) {
         if(flag=="舗装"){
             select1.options[select1.selectedIndex].value=="舗装"
         }else if(flag=="照明灯"){
-            select1.options[select1.selectedIndex].value=="照明等"
+            select1.options[select1.selectedIndex].value=="照明灯"
         }else if(flag=="道路付属物"){
             select1.options[select1.selectedIndex].value=="道路付属物"
         }else if(flag=="雨水・排水"){
