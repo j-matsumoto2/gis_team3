@@ -4,6 +4,7 @@
 
 .title { /*報告状況入力*/
     font-family: Impact;
+    font-weight: bold;
     font-size: 30px;
     color: #364e96; /*文字色*/
     padding: 0.5em 0; /*上下の余白*/
@@ -21,8 +22,7 @@
     font-size: 25px;
     color: red;
     border: solid 1px red;
-    border-radius: 0.5rem;
-
+    border-radius: 5px;
 }
 
 .any { /*任意*/
@@ -30,34 +30,32 @@
     font-size: 1.5rem;
     color: gray;
     border: solid 1px black;
-    border-radius: 0.5rem;
-
+    border-radius: 5px;
 }
 
 .box {
     height: 50px;
     width: 360px;
     font-size: 16px;
+    font-family: YuGothic;
 }
 
 .textarea {
     border: 2px solid gray; /*枠線の太さと線の色*/
-    padding: 0.2rem; /*よくわからん*/
+    /*padding: 0.2rem; !*よくわからん*!*/
     width: 98%;
     height: 6em;
     font-size: 16px; /*入力するfontsize*/
     color: black; /*入力するfontcolor*/
 }
 
-.square_btn {
-    /*position: relative;*/
-    /*padding: 10px;*/
+.square_btn { /* 報告する*/
     margin-top: 2em;
     display: inline-block;
     background: crimson; /*色*/
     border-radius: 4px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+    /*text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);*/
     width: 130px;
     height: 44px;
     /*--font--*/
@@ -82,67 +80,77 @@ label > input {
     display: none;
 }
 
-.photo {
-    background-image: url("images/camera_white.png");
-    background-color: forestgreen;
-    border: 2px solid forestgreen;
-    width: 80px;
-    height: 80px;
-    display: inline-block;
+#upload {
+    width: 100px;
+    height: 150px;
+    line-height: 35px;
     border-radius: 10px;
+    color: #fff;
+    background-color: #4385bf;
+    margin: 10px 0;
+    cursor: pointer;
+    display: flex;
 }
 
-.button_font {
-    font-size: 20px;
-    font-family: YuGothic;
+#results {
+    border: 1px solid #4385bf;
+    background-color: #bbd4ea;
+    widht: 100px;
+    height: 150px;
+    padding: 5px;
+    margin: 10px 0;
 }
 
+#results img {
+    border: 1px solid #000;
+    margin: 0 5px 0 0;
+}
+
+/*----MAP------*/
 .map_p {
     text-align: center;
 }
 
-/*------*/
-.accbox {
+.accbox { /*ボタン自体の設定*/
     margin: 2em 0;
     padding: 0;
-    max-width: 400px;/*最大幅*/
+    max-width: 400px;
 }
 
-/*ラベル*/
 .accbox label {
+    height: 44px;
+    border-radius: 10px 10px 0 0; /*ボタンの丸み*/
     display: block;
-    margin: 1.5px 0;
-    padding : 11px 12px;
-    color : white; /**/
-    font-weight: bold;
-    background :#85baef;
-    cursor :pointer;
-    transition: all 0.5s;
+    padding: 10px;
+    margin-top: 2em;
+    background: #364e96;
+    cursor: pointer;
+
+    color: white;
+    font-size: 30px;
+    font-family: Marion;
 }
 
-/*ラベルホバー時*/
-.accbox label:hover {
-    background :#85baef;
+.accbox label:hover { /*開いてる時のbutton color*/
+    background: #364e96;
 }
 
-/*チェックは隠す*/
 .accbox input {
     display: none;
 }
 
-/*中身を非表示にしておく*/
-.accbox .accshow {
-    height: 0;
-    padding: 0;
+.accbox .accshow { /*中身*/
+    height: 36px;
+    padding: 5px;
     overflow: hidden;
-    opacity: 0;
+    opacity: 0; /*透明度*/
     transition: 0.8s;
 }
 
-/*クリックで中身表示*/
 .cssacc:checked + .accshow {
-    height: auto;
+    height: 446px;
     padding: 5px;
-    background: #eaeaea;
+    background: #364e96;
+    border-radius: 0 0 9px 9px;
     opacity: 1;
 }

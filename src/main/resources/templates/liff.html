@@ -4,18 +4,23 @@
 <head>
     <!--拡大縮小の制限-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
     <title>Report Form</title>
     <style type="text/css">
         <!--
-        #mapid { height: 300px; width: 300px}
+        #mapid { height: 445px; width: 100%;border-radius:0 0 9px 9px;}
         -->
     </style>
 </head>
 <body>
-<h1>[[${test}]]</h1>
+<!--<h1>[[${test}]]</h1>-->
 <!--action属性を"result.html"に指定すると500ステータスになる、"templates//result.html"にすると404ステータスになる-->
 <form id="report" name="report" method="post" enctype="multipart/form-data" action="result">
     <table>
+
+        <td>
+            <p class="title">報告状況投稿ページ</p>
+        </td>
         <tr>
             <td>
                 <p class="font">
@@ -74,11 +79,30 @@
         <tr>
             <!--地図がものすごく見づらいので折りたたみにしたけど、動きがとても悪いので修正が必要-->
             <!--マップの表示切り替え-->
-            <input type="button" value="地図を表示する" onclick="Display('no1')">
-            <input type="button" value="地図を非表示にする" onclick="Display('no2')">
-            <div id="mapid"></div>
-            <div id="maphide" style="display: none;"></div>
-            <input type="button" id="currentLocation" value="現在の位置情報を取得する" onclick="setCurLocation()">
+
+            <!--------------------地図の表示・非表示-------------------->
+            <div class="accbox">
+                <!--ラベル1-->
+                <label for="label1">Map</label>
+                <input type="checkbox" id="label1" class="cssacc"/>
+                <div class="accshow">
+                    <!--ここに隠す中身-->
+                    <div id="mapid"></div>
+                    <div id="maphide" style="display: none;"></div>
+                    <!--<input type="button" id="currentLocation" value="現在の位置情報を取得する" onclick="setCurLocation()">-->
+                    <!--&lt;!&ndash;JSで取得した位置情報を送信するためのHIDDEN&ndash;&gt;-->
+                    <!--<input type="hidden" name="lat" id="lat" value="Latitude">-->
+                    <!--<input type="hidden" name="lng" id="lng" value="Longitude">-->
+                </div>
+            </div>
+
+            <form action="index.php" method="post" enctype="multipart/form-data" id="form"/>
+            <div id="results"/>
+            <!--<input type="button" value="地図を表示する" onclick="Display('no1')">-->
+            <!--<input type="button" value="地図を非表示にする" onclick="Display('no2')">-->
+            <!--<div id="mapid"></div>-->
+            <!--<div id="maphide" style="display: none;"></div>-->
+            <!--<input type="button" id="currentLocation" value="現在の位置情報を取得する" onclick="setCurLocation()">-->
             <!--JSで取得した位置情報を送信するためのHIDDEN-->
             <input type="hidden" name="lat" id="lat" value="Latitude">
             <input type="hidden" name="lng" id="lng" value="Longitude">

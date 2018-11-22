@@ -323,4 +323,27 @@ function sendMessage() {
     }
 }
 
+//サムネ表示
+$(function () {
+    $('#upload').click(function () {
+        $('#file').click();
+    });
+
+    function setImage() {
+        for (var i = 0; i < this.files.length; i++) {
+            var file = this.files[i];
+            fr = new FileReader();
+            fr.onload = function (e) {
+                var img = $('<img>');
+                img.attr('src', e.target.result);
+                img.css('height', '160px');
+                $('#results').append(img);
+            };
+            fr.readAsDataURL(file);
+        }
+    }
+
+    $('#file').on('change', setImage);
+});
+
 //-------------------------------------------------------------------------------------------------------------------
