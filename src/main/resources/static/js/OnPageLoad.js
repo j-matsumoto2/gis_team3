@@ -120,7 +120,6 @@ function changeSelect(flag) {
             select1.options[select1.selectedIndex].value == "その他"
         }else{
             //submitできなくなるのを対処　のちにnullでおくれないようにする
-            select1.options[select1.selectedIndex].value==""
         }
     }
     //その後読み込み

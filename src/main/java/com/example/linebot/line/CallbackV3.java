@@ -1,10 +1,10 @@
 package com.example.linebot.line;
 
-import com.example.linebot.Report;
 import com.example.linebot.dao.ReportDao;
-//import com.example.linebot.web.Report;
 import com.example.linebot.line.sub.Callback;
+import com.example.linebot.web.ConvertId;
 import com.example.linebot.web.LIFFController;
+import com.example.linebot.web.ReportBean;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.client.MessageContentResponse;
 import com.linecorp.bot.model.action.Action;
@@ -26,11 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @LineMessageHandler
 public class CallbackV3 {
 
-    Report report  = new Report();
+    ReportBean report  = new ReportBean();
+
+    //ボタンテンプレのボタンを二回押さないようにするflag
+    private int flag2;
 
     @Autowired
     ReportDao reportDao;
@@ -65,9 +69,6 @@ public class CallbackV3 {
     // 画像の保存に使う
     private static String messageId;
 
-    //ボタンテンプレのボタンを二回押さないようにするflag
-    private int flag2;
-
     // 確認フォームテンプレ(非対応メッセージ用)
     public ConfirmTemplate confirmTemplateM1(String text) {
         Action left = new URIAction("はい", "line://app/1619229116-6eGmdl7z");
@@ -78,15 +79,9 @@ public class CallbackV3 {
     // 確認フォームテンプレ(LIFF対応用)
     public ConfirmTemplate confirmTemplateLIFF(String text) {
         //Action left = new PostbackAction("はい","LY");
-        Action left;
-        //報告後、はいも押せないようにするなら
-        if(flag2==1) {
-            System.out.println("qwqwqw");
-             left = new URIAction("はい", "line://app/1619229116-6eGmdl7z");
-        }else{
-            //報告後、何もしない
-            left = new PostbackAction("はい","NN");
-        }
+        //LIFFの修正確認をロード時に flag2=1にする
+        flag2 = 1;
+        Action left = new URIAction("はい", "line://app/1619229116-6eGmdl7z");
         Action right = new PostbackAction("いいえ","LN");
         return new ConfirmTemplate(text,left,right);
     }
@@ -96,10 +91,6 @@ public class CallbackV3 {
         //Action left = new PostbackAction("はい","IY");
         Action left = new PostbackAction("はい", "IY");
         Action right = new PostbackAction("いいえ","IN");
-
-        //flag2=1にする　流石に画像送ってボタンメッセージに戻って　はいいいえ押すやつおりゅ？
-        flag2=1;
-
         return new ConfirmTemplate(text,left,right);
     }
 
@@ -123,6 +114,9 @@ public class CallbackV3 {
     // 普通のメッセージに対するイベント
     @EventMapping
     public Message handleMessage(MessageEvent<TextMessageContent> event) {
+
+        // Converter
+        ConvertId convertId = new ConvertId();
 
         TextMessageContent tmc = event.getMessage();
         String text = tmc.getText();
@@ -149,8 +143,8 @@ public class CallbackV3 {
                 // 緯度経度を分割
                 ArrayList<String> latlng = substring.getLatLng(arrayList.get(3));
                 // Report(DBに保存する値の格納クラス)に値を渡す
-                report.setType(arrayList.get(0));
-                report.setCategory(arrayList.get(1));
+                report.setType(convertId.convertGenre(arrayList.get(0)));   // 文字列を対応するID(int)に変換
+                report.setCategory(convertId.convertTmpl(arrayList.get(1))); // 文字列を対応するID(int)に変換
                 report.setDetail(arrayList.get(2));
                 report.setLatitude(latlng.get(0));
                 report.setLongitude(latlng.get(1));
@@ -160,8 +154,7 @@ public class CallbackV3 {
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
-            //このメッセージが送られたとき、flag2を1にする
-            flag2=1;
+
             return new TemplateMessage("内容を修正しますか", confirmTemplateLIFF(text+"\n内容を修正しますか？"));
 
         } else {
@@ -182,7 +175,6 @@ public class CallbackV3 {
         String data = pbc.getData();
         // UserId
         String userId = event.getSource().getUserId();
-        System.out.println(flag2);
 
         // 確認フォームのボタンに対するアクション
         if("MN".equals(data)) {
@@ -192,39 +184,41 @@ public class CallbackV3 {
             // 送信完了時にLIFFのCookieを削除する?
             // 消す=="true"  消さない=="false"
             // すでにtrueだったらfalseに変更？もしくはCache削除
-            if(flag2==1) {
+            controller.putCache(userId, "true");
+            // DBにぶちこみ
+            if (flag2 == 1) {
                 controller.putCache(userId, "true");
                 // DBにぶちこみ
-                try {
-                    reportDao.insert(report.getType(), report.getCategory(), report.getDetail(), report.getLatitude(), report.getLongitude());
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                // select文でLINEidの確認
+                if (!reportDao.existLineAccount(userId)) {
+                    // DB内のidの最大値
+                    int num = reportDao.getMaxId();
+                    // DBに userId を insert
+                    reportDao.insertAccountId(num, 2);
+                    reportDao.registerLine(num, userId);
                 }
+                // DBに報告を送信
+                reportDao.insertContribution(report);
+                // PathをDBに送信
+                if (report.getImagePath() != null) reportDao.insertContributionImage(report);
+                // 画像のパスを初期化
+                report.setImagePath("");
                 //flag2を0にする　以降、報告内容のボタンテンプレメッセージが送られない限り何もしない
-                flag2=0;
+                flag2 = 0;
                 return reply("報告を送信しました。（仮）\nありがとうございます。");
-            }else{
+            } else {
                 //何もしない 警告出るけど問題ない(はず)
-                return reply("既に送信されています");
+                return reply("送信済みなんだから\nそういうことするのやめなさいよあんた");
             }
+
         } else if("IY".equals(data)) {
-            //flag2==１の時(ボタンテンプレメッセージが送られたとき)および画像が送られたときのみ通るはずなのにできない　
-            //いいえの時はできた
-            if(flag2==1) {
-                // 画像を保存してLIFF起動
-                System.out.println("qqqq");
-                getImageContent();
-                // 入力フォームのテンプレを返す
-                return goLiff();
-            }else{
-                return reply("既に送信されています");
-            }
+            // 画像を保存してLIFF起動
+            getImageContent();
+            // 入力フォームのテンプレを返す
+            return goLiff();
         } else if("IN".equals(data)) {
             // 画像を保存せずになんかメッセージ
             return reply("画像を送信するか、下の「報告フォーム」から報告できます。");
-        }else if("NN".equals(data)) {
-            //なにもしない
-            return reply("");
         } else {
             return reply("どうすることもできんゾ : data -> " + data);
         }
@@ -269,13 +263,28 @@ public class CallbackV3 {
     // また保存先のファイルパスをOptional型で返す
     private Optional<String> makeTmpFile(MessageContentResponse resp, String extention) {
 
+        existDir();
         try(InputStream is = resp.getStream()){
-            Path tmpFilePath = Files.createTempFile("linebot", extention);
+            Path tmpFilePath = Files.createTempFile(Paths.get("C:/linebot-image"),"linebot", extention);
             Files.copy(is, tmpFilePath,REPLACE_EXISTING);
+            // パスをセット
+            report.setImagePath(tmpFilePath.toString());
             return Optional.ofNullable(tmpFilePath.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    // 画像保存ディレクトリの存在チェック
+    private void existDir() {
+        File file = new File("c:\\linebot-image");
+        if (file.exists()) {
+            System.out.println("ファイルは存在します。");
+        } else {
+            System.out.println("ファイルは存在しません。");
+            file.mkdir();
+            System.out.println("mkdir -> " + file.getPath());
+        }
     }
 }
