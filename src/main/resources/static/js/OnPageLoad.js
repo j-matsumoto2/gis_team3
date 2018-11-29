@@ -118,6 +118,9 @@ function changeSelect(flag) {
             select1.options[select1.selectedIndex].value == "除雪"
         }else if(flag=="その他") {
             select1.options[select1.selectedIndex].value == "その他"
+        }else{
+            //submitできなくなるのを対処　のちにnullでおくれないようにする
+            select1.options[select1.selectedIndex].value==""
         }
     }
     //その後読み込み
@@ -285,11 +288,16 @@ function initApp(data) {
 
     document.getElementById("sendmessagebutton").addEventListener('click', function (ev) {
         type = document.report.type.value;
+        if (type != "") {
         category = document.report.category.value;
         detail = document.report.detail.value;
         latitude = newLat;
         longitude = newLon;
         sendMessage();
+        //typeがnullの時
+    }else{
+            alert("必須項目を入力してください");
+    }
     });
 
 }
@@ -324,26 +332,26 @@ function sendMessage() {
 }
 
 //サムネ表示
-$(function () {
-    $('#upload').click(function () {
-        $('#file').click();
-    });
-
-    function setImage() {
-        for (var i = 0; i < this.files.length; i++) {
-            var file = this.files[i];
-            fr = new FileReader();
-            fr.onload = function (e) {
-                var img = $('<img>');
-                img.attr('src', e.target.result);
-                img.css('height', '160px');
-                $('#results').append(img);
-            };
-            fr.readAsDataURL(file);
-        }
-    }
-
-    $('#file').on('change', setImage);
-});
+// $(function () {
+//     $('#upload').click(function () {
+//         $('#file').click();
+//     });
+//
+//     function setImage() {
+//         for (var i = 0; i < this.files.length; i++) {
+//             var file = this.files[i];
+//             fr = new FileReader();
+//             fr.onload = function (e) {
+//                 var img = $('<img>');
+//                 img.attr('src', e.target.result);
+//                 img.css('height', '160px');
+//                 $('#results').append(img);
+//             };
+//             fr.readAsDataURL(file);
+//         }
+//     }
+//
+//     $('#file').on('change', setImage);
+// });
 
 //-------------------------------------------------------------------------------------------------------------------
