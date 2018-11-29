@@ -13,6 +13,7 @@ function load_cookie() {
     var c_data,n,m,data;
     //cookieの読込
     c_data = loadCookie(c_name);
+ //   alert("load");
 
     if (c_data != "") {
         //データがある場合
@@ -23,7 +24,7 @@ function load_cookie() {
         document.report.type[data[1]].selected = true;
         Select2Decision(data[1]);   // 追加
         document.report.category[data[2]].selected=true;
-        //alert("wwwww");
+      //  alert("wwwww");
         //チェックボックス
         //document.form1.checkBox.checked = data[2];
         //ラジオボタン
@@ -35,22 +36,14 @@ function load_cookie() {
 function save_cookie() {
     var n,c_data;
     //保存データの準備
-    //テキストフィールド
-    c_data = document.report.detail.value + c_split;
-    //セレクトメニュー
-    c_data += document.report.type.selectedIndex + c_split;
-    c_data += document.report.category.selectedIndex + c_split;
-    //alert("asasa");
-    //チェックボックス
-    //c_data += document.form1.checkBox.checked + c_split;
-    //ラジオボタン
-    // for (n=0;n<document.form1.radioButton.length;n++) {
-    //     if (document.form1.radioButton[n].checked) {
-    //         c_data += n + c_split;
-    //     }
-    // }
-    //cookieの保存
-    saveCookie(c_name,c_data,c_day);
+    if(document.report.type.value!="") {
+        //テキストフィールド
+        c_data = document.report.detail.value + c_split;
+        //セレクトメニュー
+        c_data += document.report.type.selectedIndex + c_split;
+        c_data += document.report.category.selectedIndex + c_split;
+        saveCookie(c_name, c_data, c_day);
+    }
 }
 
 //cookie読込
@@ -123,6 +116,8 @@ function Select2Decision(select1) {
         select2="除雪";
     }else if(select1==3){
         select2="その他";
+    }else {
+        select2="";
     }
     changeSelect(select2);
 }
