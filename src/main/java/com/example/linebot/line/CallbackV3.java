@@ -1,10 +1,12 @@
 package com.example.linebot.line;
 
-import com.example.linebot.dao.ReportDao;
+
+import com.example.linebot.Bean.ReportBean;
+import com.example.linebot.controller.LIFFController;
+import com.example.linebot.dao.IReportDao;
 import com.example.linebot.line.sub.Callback;
-import com.example.linebot.web.ConvertId;
-import com.example.linebot.web.LIFFController;
-import com.example.linebot.web.ReportBean;
+import com.example.linebot.others.ConvertId;
+import com.example.linebot.others.Substring;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.client.MessageContentResponse;
 import com.linecorp.bot.model.action.Action;
@@ -32,10 +34,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -43,13 +42,11 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @LineMessageHandler
 public class CallbackV3 {
 
-    ReportBean report  = new ReportBean();
-
     //ボタンテンプレのボタンを二回押さないようにするflag
     private int flag2;
 
     @Autowired
-    ReportDao reportDao;
+    IReportDao reportDao;
 
     // Spring cache用
     @Autowired
@@ -143,13 +140,16 @@ public class CallbackV3 {
                 // 緯度経度を分割
                 ArrayList<String> latlng = substring.getLatLng(arrayList.get(3));
                 // Report(DBに保存する値の格納クラス)に値を渡す
-                report.setType(convertId.convertGenre(arrayList.get(0)));   // 文字列を対応するID(int)に変換
-                report.setCategory(convertId.convertTmpl(arrayList.get(1))); // 文字列を対応するID(int)に変換
-                report.setDetail(arrayList.get(2));
-                report.setLatitude(latlng.get(0));
-                report.setLongitude(latlng.get(1));
+                ReportBean reportBean = controller.getReport(event.getSource().getUserId());
+                reportBean.setType(convertId.convertGenre(arrayList.get(0)));   // 文字列を対応するID(int)に変換
+                reportBean.setCategory(convertId.convertTmpl(arrayList.get(1))); // 文字列を対応するID(int)に変換
+                reportBean.setDetail(arrayList.get(2));
+                reportBean.setLatitude(latlng.get(0));
+                reportBean.setLongitude(latlng.get(1));
                 // LINEidを取得
-                report.setLineId(event.getSource().getUserId());
+                reportBean.setLineId(event.getSource().getUserId());
+                // キャッシュ更新
+                controller.putReport(event.getSource().getUserId(), reportBean);
 
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
@@ -179,7 +179,6 @@ public class CallbackV3 {
         // 確認フォームのボタンに対するアクション
         if("MN".equals(data)) {
             return reply("画面下の「報告フォーム」から報告ができます。");
-
         } else if("LN".equals(data)) {
             // 送信完了時にLIFFのCookieを削除する?
             // 消す=="true"  消さない=="false"
@@ -197,12 +196,14 @@ public class CallbackV3 {
                     reportDao.insertAccountId(num, 2);
                     reportDao.registerLine(num, userId);
                 }
-                // DBに報告を送信
-                reportDao.insertContribution(report);
+                // DBに報告を送信（ここで画像なしだとNULL->ReportBeanがnewされてないからだと思う）
+                reportDao.insertContribution(controller.getReport(userId));
                 // PathをDBに送信
-                if (report.getImagePath() != null) reportDao.insertContributionImage(report);
-                // 画像のパスを初期化
-                report.setImagePath("");
+                ReportBean reportBean = controller.getReport(userId);
+//                System.out.println(reportBean.getImagePath());
+                if (!reportBean.getImagePath().equals("")) reportDao.insertContributionImage(controller.getReport(userId));
+                // キャッシュの削除
+                controller.evictReport(userId);
                 //flag2を0にする　以降、報告内容のボタンテンプレメッセージが送られない限り何もしない
                 flag2 = 0;
                 return reply("報告を送信しました。（仮）\nありがとうございます。");
@@ -213,7 +214,7 @@ public class CallbackV3 {
 
         } else if("IY".equals(data)) {
             // 画像を保存してLIFF起動
-            getImageContent();
+            getImageContent(event);
             // 入力フォームのテンプレを返す
             return goLiff();
         } else if("IN".equals(data)) {
@@ -237,7 +238,7 @@ public class CallbackV3 {
     }
 
     // 「画像を送信して報告」を IY で答えたときの処理
-    private void getImageContent() {
+    private void getImageContent(PostbackEvent event) {
 
         Optional<String> opt = Optional.empty();
 
@@ -247,7 +248,7 @@ public class CallbackV3 {
             log.info("get content{}:", response);
             // MessageContentResponse からファイルをローカルに保存する
             // ※LINEでは、どの解像度で写真を送っても、サーバ側でjpgファイルに変換される
-            opt = makeTmpFile(response, ".jpg");
+            opt = makeTmpFile(response, ".jpg", event);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -261,14 +262,16 @@ public class CallbackV3 {
 
     // MessageContentResponse野中のバイト入力ストリームを、拡張子を指定してファイルに書き込む
     // また保存先のファイルパスをOptional型で返す
-    private Optional<String> makeTmpFile(MessageContentResponse resp, String extention) {
+    private Optional<String> makeTmpFile(MessageContentResponse resp, String extention, PostbackEvent event) {
 
         existDir();
         try(InputStream is = resp.getStream()){
             Path tmpFilePath = Files.createTempFile(Paths.get("C:/linebot-image"),"linebot", extention);
             Files.copy(is, tmpFilePath,REPLACE_EXISTING);
-            // パスをセット
-            report.setImagePath(tmpFilePath.toString());
+
+            // 保存したらCacheを作成
+            controller.cacheReport(event.getSource().getUserId(), tmpFilePath.toString());
+
             return Optional.ofNullable(tmpFilePath.toString());
         } catch (IOException e) {
             e.printStackTrace();
@@ -288,3 +291,7 @@ public class CallbackV3 {
         }
     }
 }
+
+
+
+

@@ -1,4 +1,4 @@
-package com.example.linebot.line;
+package com.example.linebot.others;
 
 import java.util.ArrayList;
 

@@ -97,7 +97,6 @@ function drawMap() {
 function changeSelect(flag) {
     var select1 = document.forms.report.type; //変数select1を宣言
     var select2 = document.forms.report.category; //変数select2を宣言
-
     select2.options.length = 0; // 選択肢の数がそれぞれに異なる場合、これが重要
     //もしcookieから読み込まれた場合　初期のselect1のvalueはnullになっている
     //のでcookieが読み込まれた時のselect1を指定
@@ -275,7 +274,7 @@ function Display(no){
 //-------------------------------------------------------------------------------------------------------------------
 //LINEid
 function initApp(data) {
-    //alert("init");
+   // alert("init");
     document.getElementById('lineId').value = data.context.userId;
     //alert(document.getElementById('lineId').value);
     liff.getProfile().then(function (profile) {
@@ -286,6 +285,7 @@ function initApp(data) {
     });
 
     document.getElementById("sendmessagebutton").addEventListener('click', function (ev) {
+        //alert("send");
         type = document.report.type.value;
         if (type != "") {
         category = document.report.category.value;
@@ -329,6 +329,27 @@ function sendMessage() {
         console.log("もんだいない");
     }
 }
+
+//-------------------------------------------------------------------------------------------------------------------
+//スクロール
+$(function () {
+    //　.cssaccのクリック処理
+    $(".cssacc").click(function () {
+        if (!$(this).hasClass("flag")) {
+            // 自身に"flag"classを追加し、次の要素(dd)をスライドダウン　⇒
+            $(this).addClass("flag").next().slideDown(function () {
+                // ページスクロールさせるためのドキュメント高さ位置を変数scrollPointに代入（※dt要素の高さも合わせて）
+                var scrollPoint = $(this).offset().top - $(".cssacc").height();
+                // オープンしたメニュー先頭までスクロール
+                $('body,html').animate({scrollTop: scrollPoint});
+                return false;
+
+            });
+        }
+        // クリックされたdt要素がオープン用フラグclassの"flag"を持っているか？
+    });
+});
+
 
 //サムネ表示
 // $(function () {
